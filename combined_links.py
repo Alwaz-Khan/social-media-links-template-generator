@@ -1,3 +1,5 @@
+import time
+
 from supbot import Supbot
 
 title = ""
@@ -6,6 +8,9 @@ twitter_url = ""
 facebook_url = ""
 instagram_url = ""
 
+stop_execution = False
+forward_group_list = ["Alwaz Khan", "Nutty gang"]
+consolidated_message = ""
 sponsorship_ad = """
 Powered by Supbot2
 https://adsau59.github.io/Supbot2/
@@ -18,7 +23,7 @@ facebook_template = "*Facebook*\n{}\n"
 
 
 def message_received(group_name: str, contact_name: str, message: str):
-    global title, linkedin_url, twitter_url, facebook_url, instagram_url
+    global title, linkedin_url, twitter_url, facebook_url, instagram_url, consolidated_message, stop_execution
     if not (group_name == "sirf juniors" or group_name == "Nutty gang"):
         return
     if "supbot2 hi" in message.lower():
@@ -30,10 +35,13 @@ def message_received(group_name: str, contact_name: str, message: str):
     if "supbot2 title" in message.lower():
         split_message = message.split("le\n")
         title = ""
-        for line in split_message[1].split("\n"):
-            title += "*" + line + "*\n"
-        if not (linkedin_url and twitter_url and facebook_url and instagram_url):
-            supbot.send_message(group_name, "Waiting for links")
+        try:
+            for line in split_message[1].split("\n"):
+                title += "*" + line + "*\n"
+            if not (linkedin_url and twitter_url and facebook_url and instagram_url):
+                supbot.send_message(group_name, "Waiting for links")
+        except IndexError:
+            supbot.send_message(group_name, "Please Input Title with correct format")
 
     if "linkedin.com/" in message:
         linkedin_url = message
@@ -59,14 +67,40 @@ def message_received(group_name: str, contact_name: str, message: str):
             supbot.send_message(group_name, "Instagram link received")
         send_title(group_name)
 
+    if "supbot2 forward" in message.lower():
+        stop_execution = False
+        supbot.send_message(group_name, "Forwarding to other groups in 5 minutes")
+        time.sleep(10)
+        supbot.send_message(group_name, "Forwarding in 1 minute")
+        time.sleep(10)
+        if not stop_execution:
+            supbot.send_message(group_name, "Message Forwarded")
+            supbot.send_message("Nutty gang", consolidated_message)
+            supbot.send_message("Alwaz Khan", consolidated_message)
+            clear_title()
+            clear_links()
+        if stop_execution:
+            clear_links()
+            supbot.send_message("Waiting for new links")
+
+    if "supbot2 stop" in message.lower():
+        stop_execution = True
+
     if (title and linkedin_url and twitter_url and facebook_url and instagram_url) or "supbot2 publish" in message:
-        send_consolidated_message = consolidated_message()
-        supbot.send_message(group_name, send_consolidated_message)
+        consolidated_message = prepare_consolidated_message()
+        supbot.send_message(group_name, "Forward to Nutty gang?")
+        for name in forward_group_list:
+            supbot.send_message(name, consolidated_message)
+        supbot.send_message(group_name, consolidated_message)
         supbot.send_message(group_name, sponsorship_ad)
+        #clear_title()
+        #clear_links()
+
 
 def send_title(group_name):
     if not title:
         supbot.send_message(group_name, "Please provide title too.")
+
 
 def help(group_name):
     supbot.send_message(group_name, "*Commands Available*\n\n```supbot2 hi```\nChecks if I am sleep or awake.\n\n"
@@ -74,7 +108,8 @@ def help(group_name):
                                     "in the same message\n\n_Example_\nsupbot2 title\nTeam CommPR\n2020-2022\n\n"
                                     "```supbot2 publish```\npubllish the tempate with the available links")
 
-def consolidated_message():
+
+def prepare_consolidated_message():
     global title, linkedin_url, twitter_url, facebook_url, instagram_url
     message = title + "\n"
     if linkedin_url:
@@ -85,13 +120,20 @@ def consolidated_message():
         message += "\n" + facebook_template.format(facebook_url)
     if instagram_url:
         message += "\n" + instagram_template.format(instagram_url)
+    return message
 
+
+def clear_title():
+    global title
     title = ""
+
+
+def clear_links():
+    global linkedin_url, twitter_url, facebook_url, instagram_url
     linkedin_url = ""
     twitter_url = ""
     facebook_url = ""
     instagram_url = ""
-    return message
 
 
 with Supbot(group_message_received=message_received) as supbot:
