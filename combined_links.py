@@ -9,7 +9,7 @@ facebook_url = ""
 instagram_url = ""
 
 stop_execution = False
-forward_group_list = ["Alwaz Khan", "Nutty gang"]
+forward_group_list = ["User_1", "Nutty gang"]
 consolidated_message = ""
 sponsorship_ad = """
 Powered by Supbot2
@@ -102,8 +102,7 @@ def help(group_name):
                                     "```supbot2 publish```\npubllish the tempate with the available links")
 
 
-def prepare_consolidated_message():
-    global title, linkedin_url, twitter_url, facebook_url, instagram_url
+def prepare_consolidated_message(title, linkedin_url, twitter_url, facebook_url, instagram_url):
     message = title + "\n"
     if linkedin_url:
         message += "\n" + linkedin_template.format(linkedin_url)
@@ -129,5 +128,6 @@ def clear_links():
     instagram_url = ""
 
 
-with Supbot(group_message_received=message_received) as supbot:
-    supbot.wait_for_finish()
+if __name__ == "__main__":
+    with Supbot(group_message_received=message_received) as supbot:
+        supbot.wait_for_finish()
