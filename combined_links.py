@@ -26,13 +26,13 @@ def message_received(group_name: str, contact_name: str, message: str):
     global title, linkedin_url, twitter_url, facebook_url, instagram_url, consolidated_message, stop_execution
     if not (group_name == "sirf juniors" or group_name == "Nutty gang"):
         return
-    if "supbot2 hi" in message.lower():
+    if "; hi" in message.lower():
         supbot.send_message(group_name, "Supbot Online")
 
     if "supbot2 help" in message.lower():
         help(group_name)
 
-    if "supbot2 title" in message.lower():
+    if "; title" in message.lower():
         split_message = message.split("le\n")
         title = ""
         try:
@@ -67,10 +67,10 @@ def message_received(group_name: str, contact_name: str, message: str):
             supbot.send_message(group_name, "Instagram link received")
         send_title(group_name)
 
-    if "supbot2 stop" in message.lower():
+    if "; stop" in message.lower():
         stop_execution = True
 
-    if (title and linkedin_url and twitter_url and facebook_url and instagram_url) or "supbot2 publish" in message:
+    if (title and linkedin_url and twitter_url and facebook_url and instagram_url) or "; publish" in message:
         consolidated_message = prepare_consolidated_message()
         supbot.send_message(group_name, consolidated_message)
         supbot.send_message(group_name, sponsorship_ad)
