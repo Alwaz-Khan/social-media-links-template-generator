@@ -67,7 +67,13 @@ def message_received(group_name: str, contact_name: str, message: str):
             supbot.send_message(group_name, "Instagram link received")
         send_title(group_name)
 
-    if "supbot2 forward" in message.lower():
+    if "supbot2 stop" in message.lower():
+        stop_execution = True
+
+    if (title and linkedin_url and twitter_url and facebook_url and instagram_url) or "supbot2 publish" in message:
+        consolidated_message = prepare_consolidated_message()
+        supbot.send_message(group_name, consolidated_message)
+        supbot.send_message(group_name, sponsorship_ad)
         stop_execution = False
         supbot.send_message(group_name, "Forwarding to other groups in 5 minutes")
         time.sleep(20)
@@ -82,17 +88,6 @@ def message_received(group_name: str, contact_name: str, message: str):
         if stop_execution:
             clear_links()
             supbot.send_message("Waiting for new links")
-
-    if "supbot2 stop" in message.lower():
-        stop_execution = True
-
-    if (title and linkedin_url and twitter_url and facebook_url and instagram_url) or "supbot2 publish" in message:
-        consolidated_message = prepare_consolidated_message()
-        #supbot.send_message(group_name, "Forward to Nutty gang?")
-        supbot.send_message(group_name, consolidated_message)
-        supbot.send_message(group_name, sponsorship_ad)
-        clear_title()
-        clear_links()
 
 
 def send_title(group_name):
